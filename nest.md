@@ -111,6 +111,15 @@ In your Tampermonkey script update the endpoints and the private key:
 <p>That’s it! Play some music on YouTube Music and watch your Slack status update.</p>
 ---
 
+## 7) Updating 
+
+```bash
+cd ~/ytmslack \
+  && git pull --ff-only \
+  && systemctl --user restart ytmslack.service
+
+```
+
 ## Notes
 
 * Incase something goes wrong, check the logs: `journalctl --user -u ytmslack.service -f`
