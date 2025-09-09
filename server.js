@@ -43,9 +43,9 @@ app.use((req, res, next) => {
 });
 
 const SLACK_USER_TOKEN = process.env.SLACK_USER_TOKEN || "";
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const PORT = Number(process.env.PORT || 8788);
-const EMOJI = process.env.EMOJI || ":musical_note:";
-const TEMPLATE = process.env.TEMPLATE || "${title} — ${artist}";
+const TEMPLATE = process.env.TEMPLATE || "${title} :: ${artist}";
 const MIN_UPDATE_MS = Number(process.env.MIN_UPDATE_SECONDS || 4) * 1000;
 // -> debug
 // const BOOT_STATUS_TEXT =
@@ -59,8 +59,23 @@ let lastSentAt = 0;
 let currentlySetByUs = false;
 let authInfo = null;
 
+function requireAuth(req, res, next) {
+	if (!PRIVATE_KEY) {
+		return res
+			.status(500)
+			.json({ ok: false, error: "Make sure to set a private key" });
+	}
+
+	const token = req.query.token || req.body?.token;
+	if (token !== PRIVATE_KEY) {
+		return res.status(401).json({ ok: false, error: "Invalid or missing key" });
+	}
+
+	next();
+}
+
 app.get("/", (_req, res) => res.status(404).send("ok"));
-app.get("/health", (_req, res) => {
+app.get("/health", requireAuth, (_req, res) => {
 	res.json({
 		ok: true,
 		port: PORT,
@@ -74,7 +89,7 @@ app.get("/health", (_req, res) => {
 });
 
 // Manual setters
-app.post("/test", async (req, res) => {
+app.post("/test", requireAuth, async (req, res) => {
 	const text = sanitize(req.body?.text || "Test Track — Debugger");
 	log("TEST set status:", text);
 	const ok = await setSlackStatus({
@@ -83,7 +98,7 @@ app.post("/test", async (req, res) => {
 	});
 	res.status(ok ? 200 : 500).json({ ok, text });
 });
-app.post("/set", async (req, res) => {
+app.post("/set", requireAuth, async (req, res) => {
 	let body = req.body;
 	if (typeof body === "string") {
 		try {
@@ -97,7 +112,7 @@ app.post("/set", async (req, res) => {
 	res.status(ok ? 200 : 500).json({ ok, text });
 });
 
-app.post("/now-playing", async (req, res) => {
+app.post("/now-playing", requireAuth, async (req, res) => {
 	try {
 		let payload = req.body;
 		if (typeof payload === "string") {
@@ -152,7 +167,7 @@ app.post("/now-playing", async (req, res) => {
 		res.status(500).json({ ok: false, error: String(e) });
 	}
 });
-app.get("/now-playing", (_req, res) => {
+app.get("/now-playing", requireAuth, (_req, res) => {
 	if (lastKey && currentlySetByUs) {
 		const text = lastKey.replace(/^playing\|/, "");
 		res.json({
@@ -173,6 +188,10 @@ app.get("/now-playing", (_req, res) => {
 async function start() {
 	if (!SLACK_USER_TOKEN) {
 		console.error("[LOG] Missing SLACK_USER_TOKEN in .env");
+		process.exit(1);
+	}
+	if (!PRIVATE_KEY) {
+		console.error("[LOG] Missing PRIVATE_KEY in .env");
 		process.exit(1);
 	}
 	log("Token type:", SLACK_USER_TOKEN.slice(0, 4), "expected xoxp");

@@ -10,12 +10,13 @@
 // ==/UserScript==
 // use via Tampermonkey or sm
 (() => {
-	const ENDPOINT = "http://localhost:8787/now-playing";
-	const HEALTH = "http://localhost:8787/health";
-	const TEST = "http://localhost:8787/test";
-	const SET = "http://localhost:8787/set";
+	const ENDPOINT = "https://slackytm.whirlxd.dev/now-playing";
+	const HEALTH = "https://slackytm.whirlxd.dev/health";
+	const TEST = "https://slackytm.whirlxd.dev/test";
+	const SET = "https://slackytm.whirlxd.dev/set";
 	const INTERVAL_MS = 2000;
 	const DEV_MODE = true; // false to hide devUI
+	const PRIVATE_KEY = "your-secret-key-here"; // must match server's PRIVATE_KEY env var
 
 	let prevKey = "";
 	let firstPostDone = false;
@@ -48,7 +49,10 @@
 		btns.appendChild(
 			mk("Ping /health", async () => {
 				try {
-					const r = await fetch(HEALTH, { cache: "no-store" });
+					const r = await fetch(
+						`${HEALTH}?token=${encodeURIComponent(PRIVATE_KEY)}`,
+						{ cache: "no-store" },
+					);
 					overlay(`health ${r.status}: ${await r.text()}`);
 				} catch (e) {
 					overlay(`health ERR: ${String(e)}`);
@@ -72,7 +76,7 @@
 		if (el) el.textContent = String(t);
 	}
 	async function postJSON(url, obj) {
-		const body = JSON.stringify(obj || {});
+		const body = JSON.stringify({ ...obj, token: PRIVATE_KEY });
 		try {
 			const r = await fetch(url, {
 				method: "POST",
@@ -155,7 +159,10 @@
 		overlayInit();
 		overlay("boot…");
 		try {
-			const r = await fetch(HEALTH, { cache: "no-store" });
+			const r = await fetch(
+				`${HEALTH}?token=${encodeURIComponent(PRIVATE_KEY)}`,
+				{ cache: "no-store" },
+			);
 			overlay(`health ${r.status}`);
 			log("health:", await r.text());
 		} catch (e) {

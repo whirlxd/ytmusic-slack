@@ -13,6 +13,7 @@ PORT=8787
 EMOJI=:youtube-music: (if your workspace has this emoji)
 TEMPLATE=${title} :: ${artist} 
 MIN_UPDATE_SECONDS=4
+PRIVATE_KEY= a secret key for auth b/w script and server
 ```
 5. Start the server: `node server.js`
 6. Install a userscript manager in your browser (e.g., Tampermonkey).
