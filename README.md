@@ -32,6 +32,7 @@ PRIVATE_KEY= a secret key for auth b/w script and server
 - The server clears your Slack status when no music is playing or when the track is paused.
 - Ensure that your browser and the server can communicate (eg. no firewall blocking, especially in Brave).
 - This project is for personal use and may violate YouTube Music's or Slack's terms of service. Use at your own risk. idrc
+- If need be there are some AI generated docs [here](docs.md) - may contain errors.
 
 ### License
 GNU General Public License. See `LICENSE` file for details.
