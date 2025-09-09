@@ -16,7 +16,7 @@
 	const SET = "https://slackytm.whirlxd.dev/set";
 	const INTERVAL_MS = 2000;
 	const DEV_MODE = true; // false to hide devUI
-	const PRIVATE_KEY = "your-secret-key-here"; // must match server's PRIVATE_KEY env var
+	const PRIVATE_KEY = "skibidi_toilet_0_808//"; // must match server's PRIVATE_KEY env var
 
 	let prevKey = "";
 	let firstPostDone = false;
