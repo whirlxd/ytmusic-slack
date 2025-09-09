@@ -9,9 +9,10 @@
 // @connect      localhost
 // ==/UserScript==
 // use via Tampermonkey or sm
+
 (() => {
 	const ENDPOINT = "https://slackytm.whirlxd.dev/now-playing";
-	const HEALTH = "https://slackytm.whirlxd.dev/health";
+	const HEALTH = "https://slackytm.whirlxd.dev/health"; // istg im logging every req don't even think about spamming especially without the token.
 	const TEST = "https://slackytm.whirlxd.dev/test";
 	const SET = "https://slackytm.whirlxd.dev/set";
 	const INTERVAL_MS = 2000;
