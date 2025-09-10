@@ -1,10 +1,12 @@
-# YT Music Slack Status
-> A userscript and server to update your Slack status with your current YouTube Music track.
+# slack-music-status
+> A userscript and server to update your Slack status with your current YouTube Music/Spotify/SoundCloud track.
 
 <br>
 <small>an example status:</small>
 
 ![example](image.png)
+![eg2](image-1.png)
+![eg3](image-2.png)
 ### How to use
 1. Clone this repo: `git clone https://github.com/whirlxd/ytmusic-slack`
 2. `cd ytmusic-slack`
@@ -17,12 +19,15 @@ EMOJI=:youtube-music: (if your workspace has this emoji)
 TEMPLATE=${title} :: ${artist} 
 MIN_UPDATE_SECONDS=4
 PRIVATE_KEY= a secret key for auth b/w script and server
+EMOJI_YOUTUBE=:youtube-music:
+EMOJI_SPOTIFY=:spotify_logo:
+EMOJI_SOUNDCLOUD=:soundcloudnobg:
 ```
 5. Start the server: `node server.js`
 6. Install a userscript manager in your browser (e.g., Tampermonkey).
 7. Create a new userscript and copy the content of `userscript.js` into it.
 8. Adjust the `SET` constant in `userscript.js` to point to your server (e.g., `http://localhost:8787/now-playing`).
-9. Save the userscript and ensure it's enabled on `music.youtube.com`.
+9. Save the userscript and ensure it's enabled on `music.youtube.com // open.spotify.com // soundcloud.com`.
 10. Play some music on YouTube Music and watch your Slack status update!
 
 ### Notes
@@ -31,7 +36,7 @@ PRIVATE_KEY= a secret key for auth b/w script and server
 - The userscript checks for the current track every 10 seconds by default. You can adjust this interval in the `INTERVAL_MS` constant in `userscript.js`.
 - The server clears your Slack status when no music is playing or when the track is paused.
 - Ensure that your browser and the server can communicate (eg. no firewall blocking, especially in Brave).
-- This project is for personal use and may violate YouTube Music's or Slack's terms of service. Use at your own risk. idrc
+- This project is for personal use and may violate YouTube Music's // Spotify's // SoundCloud's or Slack's terms of service. Use at your own risk. idrc
 - If need be there are some AI generated docs [here](docs.md) - may contain errors.
 
 ### License

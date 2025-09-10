@@ -36,6 +36,9 @@ EMOJI=:youtube-music:
 TEMPLATE=${title} :: ${artist}
 MIN_UPDATE_SECONDS=4
 PRIVATE_KEY= this acts as a password between userscript and server, 
+EMOJI_YOUTUBE=:youtube-music:
+EMOJI_SPOTIFY=:spotify_logo:
+EMOJI_SOUNDCLOUD=:soundcloudnobg:
 ```
 
 ---

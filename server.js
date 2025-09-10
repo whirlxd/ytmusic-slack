@@ -56,6 +56,14 @@ let PRIVATE_KEY = process.env.PRIVATE_KEY;
 const PORT = Number(process.env.PORT || 8788);
 let TEMPLATE = process.env.TEMPLATE || "${title} :: ${artist}";
 let MIN_UPDATE_MS = Number(process.env.MIN_UPDATE_SECONDS || 4) * 1000;
+// the emojiname in :emojiname: format
+// should be uploaded to your workspace
+const PLATFORM_EMOJIS = {
+	youtube: process.env.EMOJI_YOUTUBE,
+	spotify: process.env.EMOJI_SPOTIFY,
+	soundcloud: process.env.EMOJI_SOUNDCLOUD,
+	default: ":musical_note:",
+};
 // -> debug
 // const BOOT_STATUS_TEXT =
 // 	process.env.BOOT_STATUS_TEXT || "Using YTM Slack extension";
@@ -185,12 +193,17 @@ app.post("/now-playing", requireAuth, async (req, res) => {
 		}
 		log("now-playing payload:", payload, "ip:", req.ip);
 
-		const { title, artist, state } = payload || {};
+		const { title, artist, state, platform } = payload || {};
 		const now = Date.now();
 
 		if (!title || state !== "playing") {
+			if (state === "paused" && currentlySetByUs) {
+				log("paused -- status active");
+				return res.json({ ok: true, paused: true });
+			}
+
 			if (currentlySetByUs && now - lastSentAt > MIN_UPDATE_MS) {
-				log("Clearing Slack status because not playing");
+				log("clearing status -- not playing");
 				const ok = await setSlackStatus({ text: "" });
 				if (ok) {
 					metrics.clears++;
@@ -202,7 +215,7 @@ app.post("/now-playing", requireAuth, async (req, res) => {
 				lastKey = "";
 				lastSentAt = now;
 			} else {
-				log("Not playing → nothing to clear (throttled or not ours).");
+				log("not playing -- not clearing");
 			}
 			return res.json({ ok: true, cleared: true });
 		}
@@ -222,15 +235,28 @@ app.post("/now-playing", requireAuth, async (req, res) => {
 			return res.json({ ok: true, skipped: "dedupe/throttle", text });
 		}
 
-		log("Updating Slack status →", text);
-		const ok = await setSlackStatus({ text });
+		// log(
+		// 	"Updating Slack status →",
+		// 	text,
+		// 	platform ? `(platform: ${platform})` : "",
+		// );
+		// log(`Using platform emoji for: ${platform || "default"}`);
+		const emoji = platform
+			? PLATFORM_EMOJIS[platform]
+			: PLATFORM_EMOJIS.default;
+
+		const ok = await setSlackStatus({
+			text,
+			platform,
+			emoji,
+		});
 		if (ok) {
 			currentlySetByUs = true;
 			lastKey = key;
 			lastSentAt = now;
 			metrics.updates++;
 			metrics.lastUpdate = new Date().toISOString();
-			return res.json({ ok: true, status: text });
+			return res.json({ ok: true, status: text, platform });
 		}
 		metrics.errors++;
 		return res.status(500).json({ ok: false, error: "Slack set failed" });
